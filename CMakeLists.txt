@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 file(GLOB SOURCES src/littlefs/*.c)
-list(APPEND SOURCES src/esp_littlefs.c src/littlefs_esp_part.c src/lfs_config.c)
+list(APPEND SOURCES src/esp_littlefs.c src/littlefs_esp_part.c src/littlefs_custom.c src/lfs_config.c)
 
 if(CONFIG_LITTLEFS_SDMMC_SUPPORT)
     list(APPEND SOURCES src/littlefs_sdmmc.c)

@@ -23,6 +23,18 @@ extern "C" {
 #define ESP_LITTLEFS_ENABLE_FTRUNCATE
 #endif // ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 4, 2)
 
+typedef struct {
+    void *context;
+    int (*read)(void *context, uint32_t block, uint32_t offset, void *buffer, size_t size);
+    int (*write)(void *context, uint32_t block, uint32_t offset, const void *buffer, size_t size);
+    int (*erase)(void *context, uint32_t block);
+    int (*sync)(void *context);
+    size_t read_size;
+    size_t write_size;
+    size_t block_size;
+    size_t block_count;
+} esp_vfs_littlefs_custom_conf_t;
+
 /**
  *Configuration structure for esp_vfs_littlefs_register.
  */
@@ -34,6 +46,8 @@ typedef struct {
 #ifdef CONFIG_LITTLEFS_SDMMC_SUPPORT
     sdmmc_card_t *sdcard;       /**< SD card handle to use if both esp_partition handle & partition label is NULL */
 #endif
+
+    esp_vfs_littlefs_custom_conf_t *custom; /**< littlefs config to use if partition, partition_label, and sdcard are all NULL */
 
     uint8_t format_if_mount_failed:1; /**< Format the file system if it fails to mount. */
     uint8_t read_only : 1;            /**< Mount the partition as read-only. */
@@ -89,6 +103,17 @@ esp_err_t esp_vfs_littlefs_unregister_sdmmc(sdmmc_card_t *sdcard);
  *          - ESP_ERR_INVALID_STATE already unregistered
  */
 esp_err_t esp_vfs_littlefs_unregister_partition(const esp_partition_t* partition);
+
+/**
+ * Unregister and unmount LittleFS from VFS by mountpoint
+ * 
+ * @param base_path  Mounting point.
+ * 
+ * @return
+ *         - ESP_OK if successful
+ *        - ESP_ERR_INVALID_STATE already unregistered
+ */
+esp_err_t esp_vfs_littlefs_unregister_mountpoint(const char* base_path);
 
 /**
  * Check if littlefs is mounted
@@ -156,6 +181,16 @@ esp_err_t esp_littlefs_format_partition(const esp_partition_t* partition);
  */
 esp_err_t esp_littlefs_format_sdmmc(sdmmc_card_t *sdcard);
 #endif
+
+/**
+ * Format a littlefs partition using custom configuration
+ * 
+ * @param custom LittleFS custom configuration
+ * @return
+ *          - ESP_OK      if successful
+ *          - ESP_FAIL    on error
+ */
+esp_err_t esp_littlefs_format_custom(esp_vfs_littlefs_custom_conf_t *custom);
 
 /**
  * Get information for littlefs
