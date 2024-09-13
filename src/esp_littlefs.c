@@ -860,13 +860,13 @@ static void esp_littlefs_take_efs_lock(void) {
         static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
         portENTER_CRITICAL(&mux);
         if( _efs_lock == NULL ){
-            _efs_lock = xSemaphoreCreateMutex();
+            _efs_lock = xSemaphoreCreateRecursiveMutex();
             assert(_efs_lock);
         }
         portEXIT_CRITICAL(&mux);
     }
 
-    xSemaphoreTake(_efs_lock, portMAX_DELAY);
+    xSemaphoreTakeRecursive(_efs_lock, portMAX_DELAY);
 }
 
 
@@ -1205,7 +1205,7 @@ exit:
             esp_littlefs_free(&efs);
         }
     }
-    xSemaphoreGive(_efs_lock);
+    xSemaphoreGiveRecursive(_efs_lock);
     return err;
 }
 
