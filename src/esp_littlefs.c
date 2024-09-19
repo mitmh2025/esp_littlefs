@@ -363,6 +363,18 @@ esp_err_t esp_littlefs_sdmmc_info(sdmmc_card_t *sdcard, size_t *total_bytes, siz
 }
 #endif
 
+esp_err_t esp_littlefs_mountpoint_info(const char *base_path, size_t *total_bytes, size_t *used_bytes)
+{
+    int index;
+    esp_err_t err;
+
+    err = esp_littlefs_by_mountpoint(base_path, &index);
+    if(err != ESP_OK) return err;
+    get_total_and_used_bytes(_efs[index], total_bytes, used_bytes);
+
+    return ESP_OK;
+}
+
 esp_err_t esp_vfs_littlefs_register(const esp_vfs_littlefs_conf_t * conf)
 {
     assert(conf->base_path);

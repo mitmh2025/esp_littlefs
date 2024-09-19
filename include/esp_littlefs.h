@@ -233,6 +233,8 @@ esp_err_t esp_littlefs_partition_info(const esp_partition_t* partition, size_t *
 esp_err_t esp_littlefs_sdmmc_info(sdmmc_card_t *sdcard, size_t *total_bytes, size_t *used_bytes);
 #endif
 
+esp_err_t esp_littlefs_mountpoint_info(const char *base_path, size_t *total_bytes, size_t *used_bytes);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
