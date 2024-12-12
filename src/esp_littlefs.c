@@ -375,6 +375,62 @@ esp_err_t esp_littlefs_mountpoint_info(const char *base_path, size_t *total_byte
     return ESP_OK;
 }
 
+static esp_err_t gc_fs(esp_littlefs_t *efs) {
+  sem_take(efs);
+  int res = lfs_fs_gc(efs->fs);
+  if (res != LFS_ERR_OK) {
+    ESP_LOGE(ESP_LITTLEFS_TAG, "Failed to run GC on \"%s\"", efs->base_path);
+  }
+  sem_give(efs);
+  return res == LFS_ERR_OK ? ESP_OK : ESP_FAIL;
+}
+
+esp_err_t esp_littlefs_gc(const char *partition_label) {
+  int index;
+  esp_err_t err;
+
+  err = esp_littlefs_by_label(partition_label, &index);
+  if (err != ESP_OK)
+    return err;
+
+  return gc_fs(_efs[index]);
+}
+
+esp_err_t esp_littlefs_gc_partition(const esp_partition_t *partition) {
+  int index;
+  esp_err_t err;
+
+  err = esp_littlefs_by_partition(partition, &index);
+  if (err != ESP_OK)
+    return err;
+
+  return gc_fs(_efs[index]);
+}
+
+#ifdef CONFIG_LITTLEFS_SDMMC_SUPPORT
+esp_err_t esp_littlefs_gc_sdmmc(sdmmc_card_t *sdcard) {
+  int index;
+  esp_err_t err;
+
+  err = esp_littlefs_by_sdmmc_handle(sdcard, &index);
+  if (err != ESP_OK)
+    return err;
+
+  return gc_fs(_efs[index]);
+}
+#endif
+
+esp_err_t esp_littlefs_gc_mountpoint(const char *base_path) {
+  int index;
+  esp_err_t err;
+
+  err = esp_littlefs_by_mountpoint(base_path, &index);
+  if (err != ESP_OK)
+    return err;
+
+  return gc_fs(_efs[index]);
+}
+
 esp_err_t esp_vfs_littlefs_register(const esp_vfs_littlefs_conf_t * conf)
 {
     assert(conf->base_path);

@@ -235,6 +235,13 @@ esp_err_t esp_littlefs_sdmmc_info(sdmmc_card_t *sdcard, size_t *total_bytes, siz
 
 esp_err_t esp_littlefs_mountpoint_info(const char *base_path, size_t *total_bytes, size_t *used_bytes);
 
+esp_err_t esp_littlefs_gc(const char *partition_label);
+esp_err_t esp_littlefs_gc_partition(const esp_partition_t *partition);
+#ifdef CONFIG_LITTLEFS_SDMMC_SUPPORT
+esp_err_t esp_littlefs_gc_sdmmc(sdmmc_card_t *sdcard);
+#endif
+esp_err_t esp_littlefs_gc_mountpoint(const char *base_path);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
